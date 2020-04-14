@@ -33,6 +33,8 @@ examples =
     [ "" /\ index
 
     -- Examples of writing hooks
+
+    , "Hooks|useEvent" /\ HookComponents.event
     , "Hooks|useWindowWidth" /\ HookComponents.windowWidth
     , "Hooks|usePreviousValue" /\ HookComponents.previousValue
     , "Hooks|useLocalStorage" /\ HookComponents.localStorage

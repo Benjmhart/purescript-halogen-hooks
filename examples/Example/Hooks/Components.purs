@@ -10,14 +10,42 @@ import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple.Nested ((/\))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
+import Effect.Class.Console (log)
 import Example.Hooks.UseDebouncer (useDebouncer)
 import Example.Hooks.UseLocalStorage (Key(..), useLocalStorage)
 import Example.Hooks.UsePreviousValue (usePreviousValue)
 import Example.Hooks.UseWindowWidth (useWindowWidth)
+import Example.Hooks.UseEvent (useToggle)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
+import Halogen.Hooks (HookM)
 import Halogen.Hooks as Hooks
+import Web.Event.Internal.Types (Event)
+
+
+event :: forall q i o m. MonadEffect m => H.Component HH.HTML q i o m
+event = Hooks.component \_ -> Hooks.do
+  let 
+    efn = \s fire-> do
+       log $ "toggling" <> show (not s)
+       fire
+  state /\ toggler <- useToggle not efn
+  let
+    handleChange :: Event -> HookM _ _ m Unit
+    handleChange e = do
+      log $ "got an event" <> show state
+      toggler 
+  Hooks.pure do
+    HH.div_ 
+      [ HH.select [ HE.onChange (Just <<< handleChange) ]
+        [ HH.option [ HP.value "1" ] [ HH.text "one" ] 
+        , HH.option [ HP.value "2" ] [ HH.text "two" ] 
+        ]
+      , HH.p_ [ HH.text (show state) ]
+      ]
+
 
 windowWidth :: forall q i o m. MonadAff m => H.Component HH.HTML q i o m
 windowWidth = Hooks.component \_ -> Hooks.do
